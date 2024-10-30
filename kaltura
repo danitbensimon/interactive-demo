@@ -43,23 +43,5 @@
 </head>
 <body>
 </body>
- <script>
-        !function(window){
-            const host="https://labs.heygen.com",
-            url=host+"/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiIzMzZiNzI2MzRlNjQ0MzM1YWQ0MGJkNTY0%0D%0ANjJmYzc4MCIsInByZXZpZXdJbWciOiJodHRwczovL2ZpbGVzMi5oZXlnZW4uYWkvYXZhdGFyL3Yz%0D%0ALzMzNmI3MjYzNGU2NDQzMzVhZDQwYmQ1NjQ2MmZjNzgwL2Z1bGwvMi4yL3ByZXZpZXdfdGFyZ2V0%0D%0ALndlYnAiLCJuZWVkUmVtb3ZlQmFja2dyb3VuZCI6ZmFsc2UsImtub3dsZWRnZUJhc2VJZCI6IjZk%0D%0AOTUyNWFkNWM0YjQ1MTU5NGQzMzAwMTkyYzcyY2FjIiwidXNlcm5hbWUiOiI0OTlhYjkyMjIzYTQ0%0D%0AM2JiODk0YzgwYzA3NWI3NGU2MiJ9&inIFrame=1",
-            clientWidth=document.body.clientWidth,
-            wrapDiv=document.createElement("div");
-            wrapDiv.id="heygen-streaming-embed";
-            const container=document.createElement("div");
-            container.id="heygen-streaming-container";
-            const iframe=document.createElement("iframe");
-            iframe.allowFullscreen=!1,iframe.title="Streaming Embed",iframe.role="dialog",iframe.allow="microphone",iframe.src=url;
-            let visible=!1,initial=!1;
-            window.addEventListener("message",(e=>{
-                e.origin===host&&e.data&&e.data.type&&"streaming-embed"===e.data.type&&("init"===e.data.action?(initial=!0,wrapDiv.classList.toggle("show",initial)):"show"===e.data.action?(visible=!0,wrapDiv.classList.toggle("expand",visible)):"hide"===e.data.action&&(visible=!1,wrapDiv.classList.toggle("expand",visible)))}));
-            container.appendChild(iframe);
-            wrapDiv.appendChild(container);
-            document.body.appendChild(wrapDiv);
-        }(globalThis);
-    </script>
+ danit
 </html>
