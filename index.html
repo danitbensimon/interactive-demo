@@ -264,4 +264,25 @@
                     piece.classList.remove('dragging');
                     document.removeEventListener('mousemove', movePiece);
                     document.removeEventListener('mouseup', stopDragging);
-                    checkPlacement
+                    checkPlacement(piece);
+                }
+
+                document.addEventListener('mousemove', movePiece);
+                document.addEventListener('mouseup', stopDragging);
+            }
+        }
+
+        function checkPlacement(piece) {
+            const targetPositions = {
+                bar: { x: 90, y: 80 },
+                pie: { x: 190, y: 30 },
+                line: { x: 110, y: 150 }
+            };
+
+            const type = piece.getAttribute('data-type');
+            const target = targetPositions[type];
+
+            const pieceRect = piece.getBoundingClientRect();
+            const isNearTarget = 
+                Math.abs(pieceRect.left - target.x) < 20 &&
+                Math.abs(pieceRect.top - target
