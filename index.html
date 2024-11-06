@@ -1,158 +1,288 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Danit Ben Simon Live Avatar</title>
-<style>
-  /* Fullscreen gradient background */
-  body {
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
-    background: linear-gradient(135deg, #8e44ad, #3498db);
-    color: white;
-    font-family: Arial, sans-serif;
-    text-align: center;
-  }
+    <title>Fix the Messy Data</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 16px;
+            font-family: system-ui, sans-serif;
+            background: #f0f2f5;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
 
-  /* Centered main text with responsive font size */
-  .main-content {
-    position: relative;
-    width: 90%;
-    font-size: 1.8em;
-    margin-top: -10%;
-  }
+        .game-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
 
-  .arrow {
-    font-size: 2.5em;
-    transform: rotate(45deg);
-    margin-top: 20px;
-  }
+        .header {
+            text-align: center;
+            margin-bottom: 12px;
+        }
 
-  /* Footer with responsive link */
-  .footer {
-    position: absolute;
-    bottom: 10px;
-    width: 100%;
-    font-size: 1em;
-  }
+        h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #1a1a1a;
+        }
 
-  .footer a {
-    color: white;
-    text-decoration: none;
-  }
+        .timer-bar {
+            height: 6px;
+            background: #eee;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
 
-  /* Responsive adjustments */
-  @media (max-width: 768px) {
-    .main-content {
-      font-size: 1.5em;
-      margin-top: -20%;
-    }
+        .timer-progress {
+            height: 100%;
+            width: 100%;
+            background: linear-gradient(90deg, #4CAF50, #2196F3);
+            transition: width 1s linear;
+        }
 
-    .arrow {
-      font-size: 2em;
-    }
-  }
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
 
-  @media (max-width: 480px) {
-    .main-content {
-      font-size: 1.2em;
-    }
-    .arrow {
-      font-size: 1.8em;
-    }
-    .footer {
-      font-size: 0.9em;
-    }
-  }
-</style>
+        .chart-container {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 12px;
+            height: 200px;
+            border: 1px solid #e0e0e0;
+            position: relative;
+        }
+
+        /* Draggable missing pieces styled */
+        .missing-piece {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            cursor: grab;
+            z-index: 100;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #ddd;
+            transition: transform 0.2s;
+        }
+
+        .missing-bar-piece {
+            width: 30px;
+            height: 80px;
+            background: #2196F3;
+            left: 20px;
+            top: 80px;
+        }
+
+        .missing-pie-piece {
+            background: #2196F3;
+            clip-path: polygon(50% 50%, 50% 0%, 100% 0%, 100% 50%);
+            left: 80px;
+            top: -30px;
+        }
+
+        .missing-line-piece {
+            width: 80px;
+            height: 40px;
+            left: 20px;
+            top: 150px;
+        }
+
+        .missing-line-piece::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: #FF9800;
+            transform: rotate(30deg);
+            transform-origin: left center;
+        }
+
+        /* Hover and dragging effects */
+        .missing-piece:hover {
+            filter: brightness(1.1);
+        }
+
+        .missing-piece.dragging {
+            opacity: 0.8;
+            cursor: grabbing;
+        }
+    </style>
 </head>
 <body>
-  <div class="main-content">
-    Check out this AI-powered sales assistant for Kaltura
-    <div class="arrow">↓</div>
-  </div>
+    <div class="game-container">
+        <div class="header">
+            <h1>Fix the Messy Data</h1>
+        </div>
 
-  <div class="footer">
-    <a href="https://www.linkedin.com/in/danitbensimon/" target="_blank">Danit Ben Simon - AI Marketing</a>
-  </div>
+        <div class="timer-bar">
+            <div class="timer-progress" id="timer"></div>
+        </div>
 
-  <script>
-    /* Mobile-friendly HeyGen Streaming Avatar script */
-    !function(window){
-      const host="https://labs.heygen.com",
-      url=host+"/guest/streaming-embed?share=eyJxdWFsaXR5IjoiaGlnaCIsImF2YXRhck5hbWUiOiIzMzZiNzI2MzRlNjQ0MzM1YWQ0MGJkNTY0NjJmYzc4MCIsInByZXZpZXdJbWciOiJodHRwczovL2ZpbGVzMi5oZXlnZW4uYWkvYXZhdGFyL3YzLzMzNmI3MjYzNGU2NDQzMzVhZDQwYmQ1NjQ2MmZjNzgwL2Z1bGwvMi4yL3ByZXZpZXdfdGFyZ2V0LndlYnAiLCJuZWVkUmVtb3ZlQmFja2dyb3VuZCI6ZmFsc2UsImtub3dsZWRnZUJhc2VJZCI6ImNjZGJlYTVkNGExNDRjOWFiNmQwMjIxNmQ5ZjU2MTVjIiwidXNlcm5hbWUiOiI0OTlhYjkyMjIzYTQ0M2JiODk0YzgwYzA3NWI3NGU2MiJ9&inIFrame=1",
-      clientWidth=document.body.clientWidth,
-      wrapDiv=document.createElement("div");
-      wrapDiv.id="heygen-streaming-embed";
-      const container=document.createElement("div");
-      container.id="heygen-streaming-container";
-      const stylesheet=document.createElement("style");
-      stylesheet.innerHTML = `
-        #heygen-streaming-embed {
-          z-index: 9999;
-          position: fixed;
-          left: 20px;
-          bottom: 20px;
-          width: 150px;
-          height: 150px;
-          border-radius: 50%;
-          border: 2px solid #fff;
-          box-shadow: 0px 8px 24px 0px rgba(0, 0, 0, 0.12);
-          transition: all linear 0.1s;
-          overflow: hidden;
-          opacity: 0;
-          visibility: hidden;
+        <div class="dashboard">
+            <!-- Bar Chart with missing piece -->
+            <div class="chart-container">
+                <canvas id="revenueChart"></canvas>
+                <div class="missing-piece missing-bar-piece" data-type="bar"></div>
+            </div>
+
+            <!-- Pie Chart with missing piece -->
+            <div class="chart-container">
+                <canvas id="usersChart"></canvas>
+                <div class="missing-piece missing-pie-piece" data-type="pie"></div>
+            </div>
+
+            <!-- Line Chart with missing piece -->
+            <div class="chart-container">
+                <canvas id="conversionChart"></canvas>
+                <div class="missing-piece missing-line-piece" data-type="line"></div>
+            </div>
+
+            <!-- Area Chart -->
+            <div class="chart-container">
+                <canvas id="engagementChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let charts = {};
+
+        function initGame() {
+            createCharts();
+            initDragAndDrop();
+            startTimer();
         }
-        #heygen-streaming-embed.show {
-          opacity: 1;
-          visibility: visible;
+
+        function createCharts() {
+            // Bar chart
+            charts.revenue = new Chart(document.getElementById('revenueChart'), {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Revenue',
+                        data: [65, 59, null, 81, 56, 55], // Gap in March
+                        backgroundColor: '#2196F3'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Pie chart with missing slice
+            charts.users = new Chart(document.getElementById('usersChart'), {
+                type: 'pie',
+                data: {
+                    labels: ['Direct', 'Social', 'Email'],
+                    datasets: [{
+                        data: [35, 25, 20],
+                        backgroundColor: ['#4CAF50', 'transparent', '#FF9800']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Line chart
+            charts.conversion = new Chart(document.getElementById('conversionChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Conversion',
+                        data: [12, 19, null, 15, 22, 13], // Gap between Mar-Apr
+                        borderColor: '#FF9800',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
+
+            // Area chart
+            charts.engagement = new Chart(document.getElementById('engagementChart'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [{
+                        label: 'Engagement',
+                        data: [45, 59, null, 75, 66, 85],
+                        borderColor: '#9C27B0',
+                        backgroundColor: 'rgba(156,39,176,0.2)',
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } }
+                }
+            });
         }
-        #heygen-streaming-embed.expand {
-          ${clientWidth < 540 ? "height: 200px; width: 90%; left: 5%;" : "height: 266px; width: 300px;"}
-          border: 0;
-          border-radius: 8px;
+
+        function initDragAndDrop() {
+            const pieces = document.querySelectorAll('.missing-piece');
+            
+            pieces.forEach(piece => {
+                piece.addEventListener('mousedown', startDragging);
+            });
+
+            function startDragging(e) {
+                const piece = this;
+                piece.classList.add('dragging');
+                
+                const startX = e.clientX - piece.offsetLeft;
+                const startY = e.clientY - piece.offsetTop;
+
+                function movePiece(e) {
+                    piece.style.left = (e.clientX - startX) + 'px';
+                    piece.style.top = (e.clientY - startY) + 'px';
+                }
+
+                function stopDragging() {
+                    piece.classList.remove('dragging');
+                    document.removeEventListener('mousemove', movePiece);
+                    document.removeEventListener('mouseup', stopDragging);
+                    checkPlacement(piece);
+                }
+
+                document.addEventListener('mousemove', movePiece);
+                document.addEventListener('mouseup', stopDragging);
+            }
         }
-        #heygen-streaming-container {
-          width: 100%;
-          height: 100%;
-        }
-        #heygen-streaming-container iframe {
-          width: 100%;
-          height: 100%;
-          border: 0;
-        }
-      `;
-      const iframe=document.createElement("iframe");
-      iframe.allowFullscreen=!1;
-      iframe.title="Streaming Embed";
-      iframe.role="dialog";
-      iframe.allow="microphone";
-      iframe.src=url;
-      let visible=!1, initial=!1;
-      window.addEventListener("message", (e) => {
-        if(e.origin===host && e.data && e.data.type && "streaming-embed" === e.data.type){
-          if("init"===e.data.action){
-            initial=!0;
-            wrapDiv.classList.toggle("show",initial);
-          } else if("show"===e.data.action){
-            visible=!0;
-            wrapDiv.classList.toggle("expand",visible);
-          } else if("hide"===e.data.action){
-            visible=!1;
-            wrapDiv.classList.toggle("expand",visible);
-          }
-        }
-      });
-      container.appendChild(iframe);
-      wrapDiv.appendChild(stylesheet);
-      wrapDiv.appendChild(container);
-      document.body.appendChild(wrapDiv);
-    }(globalThis);
-  </script>
-</body>
-</html>
+
+        function checkPlacement(piece) {
+            const targetPositions = {
+                bar: { x: 90, y: 80 },
+                pie: { x: 190, y: 30 },
+                line: { x: 110, y: 150 }
+            };
+
+            const type = piece.getAttribute('data-type');
+            const target = targetPositions[type];
+
+            const pieceRect = piece.getBoundingClientRect();
+            const isNearTarget = 
+                Math.abs(pieceRect.left - target.x) < 20 &&
+                Math.abs(pieceRect.top - target
